@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Lab: Product Filter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .filter-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-section input {
+            width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .filter-section input:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .filter-section button {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .filter-section button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            border-color: #2a5298;
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .product-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .product-card p {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2a5298;
+            margin-top: 10px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .console-output h3 {
+            color: #4ec9b0;
+            margin-bottom: 15px;
+        }
+
+        .console-output .log {
+            margin-bottom: 10px;
+        }
+
+        .console-output .log-header {
+            color: #569cd6;
+            font-weight: bold;
+        }
+
+        .console-output .log-content {
+            color: #ce9178;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Product Filter System</h1>
+        </div>
+
+        <div class="content">
+            <div class="filter-section">
+                <label for="minPrice">Filter by Minimum Price:</label>
+                <input type="number" id="minPrice" placeholder="Enter min price" value="0" min="0">
+                <button onclick="filterProducts()">Apply Filter</button>
+                <button onclick="resetFilter()">Reset</button>
+            </div>
+
+            <h2 style="margin-bottom: 20px; color: #333;">Products</h2>
+            <div class="products-grid" id="productsGrid"></div>
+
+            <div class="console-output" id="consoleOutput">
+                <h3>Console Output:</h3>
+                <div id="logs"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample products JSON data
+        const productsData = {
+            "products": [
+                {
+                    "id": 1,
+                    "name": "Laptop",
+                    "category": "Electronics",
+                    "price": 45000,
+                    "stock": 15
+                },
+                {
+                    "id": 2,
+                    "name": "Smartphone",
+                    "category": "Electronics",
+                    "price": 25000,
+                    "stock": 30
+                },
+                {
+                    "id": 3,
+                    "name": "Headphones",
+                    "category": "Accessories",
+                    "price": 3000,
+                    "stock": 50
+                },
+                {
+                    "id": 4,
+                    "name": "Keyboard",
+                    "category": "Accessories",
+                    "price": 1500,
+                    "stock": 40
+                },
+                {
+                    "id": 5,
+                    "name": "Monitor",
+                    "category": "Electronics",
+                    "price": 12000,
+                    "stock": 20
+                },
+                {
+                    "id": 6,
+                    "name": "Mouse",
+                    "category": "Accessories",
+                    "price": 800,
+                    "stock": 60
+                },
+                {
+                    "id": 7,
+                    "name": "Tablet",
+                    "category": "Electronics",
+                    "price": 18000,
+                    "stock": 25
+                },
+                {
+                    "id": 8,
+                    "name": "Webcam",
+                    "category": "Accessories",
+                    "price": 2500,
+                    "stock": 35
+                }
+            ]
+        };
+
+        let currentProducts = productsData.products;
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            displayAllProducts();
+            logToConsole('All Products:', productsData.products);
+        });
+
+        // Display products in the grid
+        function displayProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            if (products.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">No products found matching your criteria.</p>';
+                return;
+            }
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p><strong>ID:</strong> ${product.id}</p>
+                    <p><strong>Stock:</strong> ${product.stock} units</p>
+                    <span class="category-badge">${product.category}</span>
+                    <div class="price">₹${product.price.toLocaleString()}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Display all products initially
+        function displayAllProducts() {
+            displayProducts(productsData.products);
+        }
+
+        // Filter products based on minimum price
+        function filterProducts() {
+            const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+            
+            const filteredProducts = productsData.products.filter(product => product.price >= minPrice);
+            
+            displayProducts(filteredProducts);
+            logToConsole(`Filtered Products (Price >= ₹${minPrice}):`, filteredProducts);
+        }
+
+        // Reset filter
+        function resetFilter() {
+            document.getElementById('minPrice').value = '0';
+            displayAllProducts();
+            clearConsole();
+            logToConsole('All Products:', productsData.products);
+        }
+
+        // Log to console output div
+        function logToConsole(header, data) {
+            const logsDiv = document.getElementById('logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log';
+            
+            logEntry.innerHTML = `
+                <div class="log-header">${header}</div>
+                <div class="log-content">${JSON.stringify(data, null, 2)}</div>
+            `;
+            
+            logsDiv.appendChild(logEntry);
+            
+            // Also log to browser console
+            console.log(header, data);
+        }
+
+        // Clear console output
+        function clearConsole() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        // Demonstrate the functionality in browser console
+        console.log('=== Product Filter System ===');
+        console.log('All Products:', productsData.products);
+        console.log('---');
+        console.log('Example: Filter products with price >= 10000');
+        const exampleFiltered = productsData.products.filter(p => p.price >= 10000);
+        console.log('Filtered Results:', exampleFiltered);
+    </script>
+</body>
+</html>
